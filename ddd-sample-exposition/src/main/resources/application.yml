@@ -1,0 +1,22 @@
+server:
+  port: 8088
+spring:
+  jpa:
+    database: hsql
+    database-platform: org.hibernate.dialect.HSQLDialect
+    orm: META-INF/orm.xml
+    open-in-view: false
+  datasource:
+    url: jdbc:hsqldb:mem:dataSource
+    username: sa
+    password:
+#Monitoring endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+dekorate:
+  kubernetes:
+    serviceType: NodePort
+    imagePullPolicy: Always

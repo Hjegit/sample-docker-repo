@@ -1,0 +1,75 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    app: "ddd-sample-exposition"
+    version: "1.0-SNAPSHOT"
+    group: "badrn"
+  name: "ddd-sample-exposition"
+spec:
+  ports:
+    - name: "http"
+      port: 8088
+      targetPort: 8088
+  selector:
+    app: "ddd-sample-exposition"
+    version: "1.0-SNAPSHOT"
+    group: "badrn"
+  type: "NodePort"
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    app: "ddd-sample-exposition"
+    version: "1.0-SNAPSHOT"
+    group: "badrn"
+  name: "ddd-sample-exposition"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "ddd-sample-exposition"
+      version: "1.0-SNAPSHOT"
+      group: "badrn"
+  template:
+    metadata:
+      labels:
+        app: "ddd-sample-exposition"
+        version: "1.0-SNAPSHOT"
+        group: "badrn"
+    spec:
+      containers:
+        - env:
+            - name: "KUBERNETES_NAMESPACE"
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.namespace"
+          image: "bnasslahsen/jenkins-repo:latest"
+          imagePullPolicy: "Always"
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: "/actuator/info"
+              port: 8088
+              scheme: "HTTP"
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: "ddd-sample-exposition"
+          ports:
+            - containerPort: 8088
+              name: "http"
+              protocol: "TCP"
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: "/actuator/health"
+              port: 8088
+              scheme: "HTTP"
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
